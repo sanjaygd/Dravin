@@ -32,8 +32,12 @@ class DataFeed():
             for qoute in q_list:
                 data = ()
                 ticker = {}
-                symbol = qoute.find('p',{'class':'flt w120'}).text                
-                symbol = quote_dict[symbol]
+                symbol = qoute.find('p',{'class':'flt w120'}).text 
+                try:               
+                    symbol = quote_dict[symbol]
+                except KeyError:
+                    print(symbol, 'New entry')
+                    continue
                 ltp = qoute.find('li',{'class':'w70 alignC'}).find('span',{'class':'ltp'}).text
                 ltp = float(ltp)            
                 try:
@@ -52,7 +56,7 @@ class DataFeed():
 
                 timestamp = datetime.now()
                 _date = timestamp.strftime('%Y-%m-%d')
-                _time = timestamp.strftime('%I-%M-%S %p')
+                _time = timestamp.strftime('%H:%M:%S')
 
                 
 
@@ -66,8 +70,8 @@ class DataFeed():
             print('Something went wrong')
         
 
-        # print(quot_data)
-        # print(len(quot_data))
+        print(quot_data)
+        print(len(quot_data))
         return quot_data
 
 
