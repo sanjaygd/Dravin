@@ -41,15 +41,7 @@ if __name__ == "__main__":
         ini.create_db(db_name = args)
         output = f'database {args} created succefully'
         print(output)
-        
     
-    # elif argument.password:
-    #     xxx = os.environ.get('CLI_PASSWORD')
-    #     if argument.password == xxx:
-    #         ini = db_table_cleaner.TableCleaner()
-    #         ini.clean_table()
-    #     else:
-    #         print('Nok')
 
 # ----------------- Table cleaning -----------------------------
     elif argument.table_cleaning:
@@ -103,18 +95,21 @@ if __name__ == "__main__":
         db_key=None
         tb_name=None
         nifty100=False
+        candle_15 = False
         if password == xxx and args:
             if len(args) == 2:
                 db_key = args[0]
                 if args[1] == 'True':
                     nifty100 = True
+                elif args[1] == 'y':
+                    candle_15 = True
                 else:
                     tb_name = args[1]
             else:
                 print('argument limit exceeded, required only two')
 
             ini = db_table_maker.TableMaker()
-            ini.create_tables(db_key=db_key,tb_name=tb_name,nifty100=nifty100)
+            ini.create_tables(db_key=db_key,tb_name=tb_name,nifty100=nifty100,candle_15=candle_15)
             
         else:
             print('Invalid password')

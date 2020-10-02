@@ -42,8 +42,7 @@ class PGS():
                         port = "5432",
                         database = db_key
                     )
-                    print('connected succesfully')
-                    # print(self.connection)
+                    
 
                 except Exception as ex:
                     print(ex)

@@ -3,24 +3,53 @@ from datetime import datetime,date
 
 from bs4 import BeautifulSoup
 
+from db_feeder.database import PGS
 from quote_lib.ticker_symbol import quote_dict
+from proxy_server.proxy import ProxyServer
 
-
-class DataFeed():
+class DataFeed(PGS):
     def __init__(self):
         self.succuss_to_connect = None
         self.try_count = 0
         self.response = None
         self.url = 'https://economictimes.indiatimes.com/markets/nifty-100/indexsummary/indexid-2510,exchange-50.cms'
+        super().__init__()
         
 
 
     def get_feed(self):
         quot_data = []
+
+        self.connect('proxy') #need to close connection
+        cur = self.connection.cursor()
+        sql = 'SELECT ip,time FROM ip_address'
+        cur.execute(sql)
+        ip_list = cur.fetchall()
+        cur.close()
+        self.connection.close()
+        # print(ip_list)
         
         try:
-            self.response = requests.get(self.url)
-            self.succuss_to_connect = True
+            proxy_count = 0               
+            for ips in ip_list[::-1]:
+                ip,_time = ips
+                using_proxy = {'https':ip}
+                print(using_proxy)
+                proxy_count += 1
+                print(proxy_count)
+                try:
+                    if not proxy_count == 20:
+                        self.response = requests.request('get',self.url,proxies=using_proxy,timeout=3)
+                        self.succuss_to_connect = True
+                        break
+                    if proxy_count == 20:
+                        self.response = requests.get(self.url)
+                        self.succuss_to_connect = True
+                        break
+                except:
+                    continue
+
+            
         except requests.exceptions.ConnectionError:
             self.succuss_to_connect=False
             print('This Connection error')
@@ -70,8 +99,8 @@ class DataFeed():
             print('Something went wrong')
         
 
-        print(quot_data)
-        print(len(quot_data))
+        # print(quot_data)
+        # print(len(quot_data))
         return quot_data
 
 

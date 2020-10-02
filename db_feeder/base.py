@@ -4,4 +4,4 @@ class Base():
         self.do_not_log = do_not_log
 
         if log is None and do_not_log == False:
-            self.log = 
+            self.log 
