@@ -1,7 +1,6 @@
 import psycopg2
 
 from db_feeder.database import PGS
-from db_feeder.db_record import db_keys
 from quote_lib.ticker_symbol import quote_dict
 
 
@@ -10,7 +9,7 @@ class TableCleaner(PGS):
     def clean_table(self,db_key=None,tb_name=None,delete_all=False):
         if db_key and tb_name:
             try:
-                self.connect(db_key)
+                self.connect(db_key,_from='db_table_cleaner.clean_table')
                 cur = self.connection.cursor()
                 sql = f'DELETE FROM {tb_name}'
                 cur.execute(sql)
@@ -50,4 +49,4 @@ class TableCleaner(PGS):
 
 if __name__ == "__main__":
     x = TableCleaner()
-    x.clean_table(db_key='sample',delete_all=True)
+    # x.clean_table(db_key='sample',delete_all=True)

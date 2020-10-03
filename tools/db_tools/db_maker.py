@@ -3,7 +3,7 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 from db_feeder.database import PGS
-from db_feeder.db_record import db_keys
+
 
 
 class DBCreater(PGS):
@@ -13,23 +13,23 @@ class DBCreater(PGS):
             try:
                 if not db_key:
                     db_key = 'postgres'
-                    self.connect(db_key)
+                    self.connect(db_key,_from='db_maker.create_db')
                     self.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
                     cur = self.connection.cursor()
                     sql = f'CREATE DATABASE {db_name}'
                     cur.execute(sql)
                     self.connection.commit()
-                    print('db created succefully')
+                    self.log_info(f'Database named {db_name} created successfully')
 
             except (Exception, psycopg2.Error) as error :
-                print(error)
+                self.log_error(error)
 
             finally:
                 if self.connection:
-                    # cur.close()
                     self.connection.close()
         else:
-            print('Please provide the db_name')
+            self.log_warning('Database name not given. Please provide the db_name')
+            
 
 
 
@@ -37,6 +37,6 @@ class DBCreater(PGS):
 
 if __name__ == "__main__":
     x = DBCreater()
-    x.create_db()
+    # x.create_db()
 
             

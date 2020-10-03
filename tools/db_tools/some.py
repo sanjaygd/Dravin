@@ -1,20 +1,19 @@
-hello = 'hello'
+from tools.log_writer.log_register import Monitor
 
-def testing(sn=None):
-    if sn == True:
-        print('Yeaii it worked')
-    else:
-        print('failed')
+class Expy(Monitor):
+    # def __init__(self):
+    #     super().__init__()
 
 
-# row_count = 60 
-
-# entry_point = 15
-
-# print(row_count%entry_point == 0)
+    def testing(self):
+        self.log_info("I have written something for test")
 
 
-# st = 'some'
 
-# p = f'{st}thing'
-# print(p)
+if __name__ == "__main__":
+    ini = Expy()
+    ini.testing()
+    
+    
+
+

@@ -10,6 +10,10 @@ from db_feeder.database import PGS
 
 
 class ProxyServer(PGS):
+    """
+    This script collects proxy server ip address and stores it in local database
+
+    """
     def __init__(self):
         self.response = None
         super().__init__()
@@ -17,17 +21,16 @@ class ProxyServer(PGS):
     def get_proxy(self):
         url = 'https://www.sslproxies.org/'
         try:
-            self.connect('proxy')
+            self.log_info('*********')
+            self.connect('proxy',_from='proxy.get_proxy')
             cur = self.connection.cursor()
             _today = date.today()
             sql = f"SELECT date,sod FROM proxy_status where date='{_today}'"
             cur.execute(sql)
             today_status = cur.fetchone()
             _date,status = today_status
-            print(status)
             proxy_list = []
             if status == True:
-                print('test')
                 try:
                     r = requests.get(url)
                     soup = BeautifulSoup(r.content,'html5lib')
@@ -39,9 +42,9 @@ class ProxyServer(PGS):
                     sql = f"UPDATE proxy_status SET sod='false' where date = '{_today}'"
                     cur.execute(sql)
                     self.connection.commit()
-                    print('updated successfully')
-                except requests.exceptions.ConnectionError:
-                    print('Connection error')
+                    self.log_info('Proxy status updated successfully at start of the day')
+                except requests.exceptions.ConnectionError as error:
+                    self.log_error(error)
 
             elif status == False:
                 
@@ -73,10 +76,11 @@ class ProxyServer(PGS):
                     if not len(ele) < 15:
                         tup = (ele,)
                         proxy_list.append(tup)
-                print('updated with proxy id')
+                self.log_info('Proxies updated successfully')
+                
                 
         except (Exception, psycopg2.Error) as error :
-                print ("Error while connecting to PGSQL", error)
+                self.log_error(error)
 
         finally:
             if self.connection:
@@ -89,29 +93,28 @@ class ProxyServer(PGS):
         data = self.get_proxy()
         if len(data)>1:
             try:
-                self.connect('proxy')
+                self.connect('proxy',_from="proxy_store_proxy")
                 cur = self.connection.cursor()
                 sql1 = f'DELETE FROM ip_address'
                 cur.execute(sql1)
                 sql2 = f'INSERT INTO {"ip_address"}("ip") values (%s)'
-                # print(sql)
                 cur.executemany(sql2,data)
                 self.connection.commit()
-                print('data inserted succesfully')
+                self.log_info("proxies stored successfully!")
 
             except (Exception, psycopg2.Error) as error :
-                print ("Error while connecting to PGSQL", error)
+                self.log_info(error)
 
             finally:
                 if self.connection:
                     cur.close()
                     self.connection.close()
         else:
-            print('there is No data available onproxy table')
+            self.log_warning('There is No data available onproxy table')
 
 
 
 if __name__ == "__main__":    
     x = ProxyServer()
     # x.get_proxy()
-    x.store_proxy()
+    # x.store_proxy()

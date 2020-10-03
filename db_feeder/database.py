@@ -1,13 +1,20 @@
 import os
 import psycopg2
 
+from tools.log_writer.log_register import Monitor
 
-class PGS():
-    def __init__(self):
+
+class PGS(Monitor):
+    """
+    This class is use to connect the rquired database
+
+    """
+    def __init__(self,log_name=None):
         self._user = os.environ.get('P_USERNAME')
         self._connection = None
         self._cursor = None
         self._autocommit = None
+        super().__init__("Postgress")
         
 
 
@@ -16,9 +23,7 @@ class PGS():
         return self._connection
         
 
-        
-
-    def connect(self,db_key=None,db_name=None):
+    def connect(self,db_key=None,db_name=None,_from=None):
         xxx=None
         is_connected=False
 
@@ -26,8 +31,8 @@ class PGS():
             try:
                 self._connection.ping()
                 is_connected=True
-            except:
-                pass #log need to add here
+            except Exception as ex:
+                print(ex) 
 
         
         if not is_connected:
@@ -42,14 +47,13 @@ class PGS():
                         port = "5432",
                         database = db_key
                     )
-                    
+                    put = 'PGS' if _from is None else _from
+                    self.log_info(f'Connected to {db_key}  successfully from {put}')
 
                 except Exception as ex:
-                    print(ex)
-                    print('Can not able to connect')
-
-            
-
-        
+                    self.log_error(ex)
 
 
+if __name__ == "__main__":
+    ini = PGS()
+    # ini.connect('sample')

@@ -8,26 +8,28 @@ from quote_lib.ticker_symbol import quote_dict
 from proxy_server.proxy import ProxyServer
 
 class DataFeed(PGS):
-    def __init__(self):
-        self.succuss_to_connect = None
-        self.try_count = 0
-        self.response = None
-        self.url = 'https://economictimes.indiatimes.com/markets/nifty-100/indexsummary/indexid-2510,exchange-50.cms'
-        super().__init__()
-        
 
+    """
+    This class is use to collect the data from the stock market
+
+    """
 
     def get_feed(self):
         quot_data = []
+        succuss_to_connect = None
+        # try_count = 0
+        response = None
+        proxy_failed = False
+        url = 'https://economictimes.indiatimes.com/markets/nifty-100/indexsummary/indexid-2510,exchange-50.cms'
+        
 
-        self.connect('proxy') #need to close connection
+        self.connect('proxy',_from='et_grab') 
         cur = self.connection.cursor()
         sql = 'SELECT ip,time FROM ip_address'
         cur.execute(sql)
         ip_list = cur.fetchall()
         cur.close()
         self.connection.close()
-        # print(ip_list)
         
         try:
             proxy_count = 0               
@@ -37,25 +39,27 @@ class DataFeed(PGS):
                 print(using_proxy)
                 proxy_count += 1
                 print(proxy_count)
+                
                 try:
                     if not proxy_count == 20:
-                        self.response = requests.request('get',self.url,proxies=using_proxy,timeout=3)
-                        self.succuss_to_connect = True
+                        response = requests.request('get',url,proxies=using_proxy,timeout=3)
+                        succuss_to_connect = True
                         break
                     if proxy_count == 20:
-                        self.response = requests.get(self.url)
-                        self.succuss_to_connect = True
+                        response = requests.get(url)
+                        succuss_to_connect = True
+                        proxy_failed =True
                         break
                 except:
                     continue
 
             
-        except requests.exceptions.ConnectionError:
-            self.succuss_to_connect=False
-            print('This Connection error')
+        except requests.exceptions.ConnectionError as ex:
+            succuss_to_connect=False
+            self.log_error(ex)
             
-        if self.succuss_to_connect:
-            soup = BeautifulSoup(self.response.text,'lxml')
+        if succuss_to_connect:
+            soup = BeautifulSoup(response.text,'lxml')
             q_list = soup.find_all('div',{'class':'dataList'}) 
 
             for qoute in q_list:
@@ -65,7 +69,7 @@ class DataFeed(PGS):
                 try:               
                     symbol = quote_dict[symbol]
                 except KeyError:
-                    print(symbol, 'New entry')
+                    # print(symbol, 'New entry')
                     continue
                 ltp = qoute.find('li',{'class':'w70 alignC'}).find('span',{'class':'ltp'}).text
                 ltp = float(ltp)            
@@ -86,9 +90,6 @@ class DataFeed(PGS):
                 timestamp = datetime.now()
                 _date = timestamp.strftime('%Y-%m-%d')
                 _time = timestamp.strftime('%H:%M:%S')
-
-                
-
                 
                 data = (_date,_time,symbol,ltp,pcng,volume,turnover) 
 
@@ -96,18 +97,18 @@ class DataFeed(PGS):
 
                 quot_data.append(ticker)
         else:
-            print('Something went wrong')
+            self.log_warning('Cound not able to connect ET from et_grab')
         
 
         # print(quot_data)
         # print(len(quot_data))
+        self.log_info(f'et_grab done successfully! and number of companies listed today {len(quot_data)}')
+        if proxy_failed:
+            self.log_warning('Proxy failed fetch through original ip')
         return quot_data
-
-
-    
 
 
 if __name__ == "__main__":
     data_feed = DataFeed()
-    data_feed.get_feed()
+    # data_feed.get_feed()
     

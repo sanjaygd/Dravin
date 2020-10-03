@@ -24,12 +24,37 @@ if __name__ == "__main__":
     
 
     parser = argparse.ArgumentParser(description='Comanding stock predictor')
-    parser.add_argument('-f', action=PwdAction, nargs=0)
     parser.add_argument('-pwd','--password', action=PwdAction, nargs=0,metavar='',help='password')
+    """
+1. -pwd use to provide password
+    """
     parser.add_argument('-dn', '--create_db',type=str,metavar='', help='Creates database for given name')
+    """
+2.  -dn Database creater requires database name to be enter. (-dn database_name)
+    """
     parser.add_argument('-dtc', '--table_cleaning',type=str,metavar='',nargs='+', help='Cleans database table')
+    """
+3.  -dtc Table cleaner rquires two arguements 1.databse name(m) 
+    2.table name or delete all=True(o) 
+    (-dtc sample tb_name or True)
+    """
     parser.add_argument('-dtd', '--table_droper',type=str,metavar='',nargs='+', help='Drops the table from database')
+    """
+4.  -dtd Table droper requires 3 arguement 
+    1.database name(m) 
+    2.table name or drop_all=True or candle_15=y (o)
+    3.password(m)
+    (_dtd sample 'ACC or True or y')
+    
+    """
     parser.add_argument('-dtm', '--table_maker',type=str, metavar='',nargs='+', help='Creates table for given database')
+    """
+5.  -dtm Table maker requires 3 arguements
+    1.Database name
+    2.Table name or nifty100=True or candle_15=y
+    3.Password
+    (-dtm sample tb_name or True or y)
+    """
 
     argument = parser.parse_args()
 
@@ -70,17 +95,20 @@ if __name__ == "__main__":
         db_key = None
         tb_name = None
         drop_all = False
+        candle_15 = False
         if len(args) == 2:
             db_key = args[0]
             if args[1] == 'True':
                 drop_all = True
+            elif args[1] == 'y':
+                candle_15 = True
             else:
                 tb_name = args[1]
         else:
             print('argument limit exceeded, required only two')
 
         ini = db_table_droper.TableDroper()
-        ini.delete_table(db_key=db_key,tb_name=tb_name,drop_all=drop_all)
+        ini.delete_table(db_key=db_key,tb_name=tb_name,drop_all=drop_all,candle_15=candle_15)
 
         
 # -------------------------- Table maker---------------------------

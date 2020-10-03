@@ -1,7 +1,6 @@
 import psycopg2
 
 from db_feeder.database import PGS
-from db_feeder.db_record import db_keys
 from quote_lib.ticker_symbol import quote_dict
 
 
@@ -15,7 +14,7 @@ class TableMaker(PGS):
             try:
                 self.connect(db_key)
                 cur = self.connection.cursor()
-                sql = f'''CREATE TABLE IF NOT EXISTS {tb_name}(date DATE NOT NULL, time TIME NOT NULL PRIMARY KEY, symbol VARCHAR(25) NOT NULL, ltp DECIMAL, pcng DECIMAL, volume DECIMAL, turnover DECIMAL );'''
+                sql = f'''CREATE TABLE IF NOT EXISTS {tb_name}(row_count SERIAL PRIMARY KEY, date DATE NOT NULL, time TIME NOT NULL, symbol VARCHAR(25) NOT NULL, ltp DECIMAL, pcng DECIMAL, volume DECIMAL, turnover DECIMAL );'''
                 cur.execute(sql)
                 self.connection.commit()
                 print('table created succesfully')
@@ -36,7 +35,7 @@ class TableMaker(PGS):
                 for tb_key,tb_value in quote_dict.items():
                     tb_name = quote_dict[tb_key]
                     print(tb_name)
-                    sql = f'''CREATE TABLE IF NOT EXISTS {tb_name}(row_count SERIAL, date DATE NOT NULL, time TIME NOT NULL PRIMARY KEY, symbol VARCHAR(25) NOT NULL, ltp DECIMAL, pcng DECIMAL, volume DECIMAL, turnover DECIMAL );'''
+                    sql = f'''CREATE TABLE IF NOT EXISTS {tb_name}(row_count SERIAL PRIMARY KEY, date DATE NOT NULL, time TIME NOT NULL, symbol VARCHAR(25) NOT NULL, ltp DECIMAL, pcng DECIMAL, volume DECIMAL, turnover DECIMAL );'''
                     cur.execute(sql)
                     self.connection.commit()
 
@@ -56,9 +55,9 @@ class TableMaker(PGS):
                 
                 cur = self.connection.cursor()
                 for tb_key,tb_value in quote_dict.items():
-                    tb_name = quote_dict[tb_key]
+                    tb_name = f"{quote_dict[tb_key]}_15"
                     print(tb_name)
-                    sql = f'''CREATE TABLE IF NOT EXISTS {tb_name}_15(row_count SERIAL, date DATE NOT NULL, time TIME NOT NULL PRIMARY KEY, symbol VARCHAR(25) NOT NULL, ltp DECIMAL, pcng DECIMAL, volume DECIMAL, turnover DECIMAL );'''
+                    sql = f'''CREATE TABLE IF NOT EXISTS {tb_name}(row_count SERIAL PRIMARY KEY, date DATE NOT NULL, time TIME NOT NULL, symbol VARCHAR(25) NOT NULL, ltp DECIMAL, pcng DECIMAL, volume DECIMAL, turnover DECIMAL );'''
                     cur.execute(sql)
                     self.connection.commit()
 
@@ -83,7 +82,7 @@ class TableMaker(PGS):
                 for tb_key,tb_value in quote_dict.items():
                     tb_name = quote_dict[tb_key]
                     print(tb_name)
-                    sql = f'''CREATE TABLE IF NOT EXISTS {tb_name}(row_count SERIAL, date DATE NOT NULL, time TIME NOT NULL PRIMARY KEY, symbol VARCHAR(25) NOT NULL, opening_price DECIMAL, previous_close DECIMAL,day_high DECIMAL NULL, day_low DECIMAL NULL);'''
+                    sql = f'''CREATE TABLE IF NOT EXISTS {tb_name}(row_count SERIAL  PRIMARY KEY, date DATE NOT NULL, time TIME NOT NULL, symbol VARCHAR(25) NOT NULL, opening_price DECIMAL, previous_close DECIMAL,day_high DECIMAL NULL, day_low DECIMAL NULL);'''
                     cur.execute(sql)
                     self.connection.commit()
 
@@ -143,24 +142,14 @@ class TableMaker(PGS):
 
 
 
-
-        
-
-
-
 if __name__ == "__main__":
     x = TableMaker()
     # x.create_tables('sample')
     # x.create_open_market()
     # x.create_proxy_ip_table()
-    x.create_proxy_status_table()
+    # x.create_proxy_status_table()
 
 
-# x.test()
-
-# y = PGS()
-
-# print(y)
 
 
 

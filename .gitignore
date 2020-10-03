@@ -1,3 +1,5 @@
 z_expy/
 *.pyc
 *__pycache__*
+log/
+db_feeder/__pycache__/*

@@ -11,6 +11,13 @@ from quote_lib.ticker_symbol import quote_dict_nse
 
 
 class InitialData(PGS):
+
+    """
+    This script collects the opening price, close price when market starts(nse_sod) and
+    collects the day high and day low when market closes(nse_eod)
+
+    """
+
     def __init__(self):
         self.nse = Nse()
         super().__init__()
@@ -44,7 +51,7 @@ class InitialData(PGS):
 
             if (data_dict['symbol'] is not None and data_dict['opening_price'] is not None and data_dict['previous_close']):
                 try:
-                    self.connect('opening_market')
+                    self.connect('opening_market',_from='tool_nse_sod')
                     cur = self.connection.cursor()
                     _today = datetime.today()
                     yesterday = _today - dt.timedelta(days=1)
@@ -57,16 +64,16 @@ class InitialData(PGS):
                             sql = f'INSERT INTO {data_dict["symbol"]}(date,time,symbol,opening_price,previous_close) values {data}'                
                             cur.execute(sql)
                             self.connection.commit()
-                            print('Open market data inserted succesfully')
+                            self.log_info('Open market data inserted succesfully')
                         else:
-                            print('data not updated with nse tool')
+                            self.log_warning('data not updated with nse tool')
                             break
                     else:
-                        print("yesterday's data not found")
+                        self.log_warning("yesterday's data not found")
                     
-                    print(data_dict['symbol'])
+                    # print(data_dict['symbol'])
                 except (Exception, psycopg2.Error) as error :
-                    print ("Error while connecting to PGSQL", error)
+                    self.log_error(error)
 
                 finally:
                     if self.connection:
@@ -74,8 +81,7 @@ class InitialData(PGS):
                         self.connection.close()
 
             else:
-                print('some data missing')
-
+                self.log_warning("Some data missing")
             
             
     def nse_eod(self):
@@ -98,34 +104,31 @@ class InitialData(PGS):
             
             if (data_dict['symbol'] is not None and data_dict['day_high'] is not None and data_dict['day_low']):
                 try:
-                    self.connect('opening_market')
+                    self.connect('opening_market',_from='tool_nse_eod')
                     cur = self.connection.cursor()
                     table_name = data_dict['symbol']
                     
                     sql = f"UPDATE {table_name} SET day_high = {data_dict['day_high']}, day_low = {data_dict['day_low']} WHERE date='{dt.date.today()}'"                
                     cur.execute(sql)
                     self.connection.commit()
-                    print('nse_eod data updated successfully')
+                    self.log_info('nse_eod data updated successfully')
                     print(table_name)
                 except (Exception, psycopg2.Error) as error :
-                    print ("Error while connecting to PGSQL", error)
+                    self.log_error(error)
 
                 finally:
                     if self.connection:
                         cur.close()
                         self.connection.close()
             else:
-                print('some data is missing')
-
-
-
+                self.log_warning("Some data missing")
 
 
 
 if __name__ == "__main__":
     ini = InitialData()
     # ini.nse_sod()
-    ini.nse_eod()
+    # ini.nse_eod()
 
 
 
