@@ -139,6 +139,26 @@ class TableMaker(PGS):
             else:
                 print('All Okay')
 
+    def create_proxy_failure_table(self,db_key='proxy'):
+        try:               
+            self.connect(db_key)
+            
+            cur = self.connection.cursor()
+            sql = f"CREATE TABLE IF NOT EXISTS proxy_failure(date DATE NOT NULL, time TIME NOT NULL,count SERIAL, reason VARCHAR(100))"
+            cur.execute(sql)
+            self.connection.commit()
+            print('proxy failure table created successfully')
+
+        except (Exception, psycopg2.Error) as error :
+            print ("Error while connecting to PGSQL", error)
+
+        finally:
+            if self.connection:
+                cur.close()
+                self.connection.close()
+            else:
+                print('All Okay')
+
 
 
 
@@ -148,6 +168,7 @@ if __name__ == "__main__":
     # x.create_open_market()
     # x.create_proxy_ip_table()
     # x.create_proxy_status_table()
+    x.create_proxy_failure_table()
 
 
 

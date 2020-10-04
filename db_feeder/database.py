@@ -27,12 +27,12 @@ class PGS(Monitor):
         xxx=None
         is_connected=False
 
-        if self._connection is not None:
-            try:
-                self._connection.ping()
-                is_connected=True
-            except Exception as ex:
-                print(ex) 
+        # if self._connection is not None:
+        #     try:
+        #         self._connection.ping()
+        #         is_connected=True
+        #     except Exception as ex:
+        #         print(ex) 
 
         
         if not is_connected:

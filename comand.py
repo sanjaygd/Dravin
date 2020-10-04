@@ -2,6 +2,12 @@ import argparse
 import getpass
 import os
 
+from db_feeder import  (
+                        pg_writer,
+                        tool_nse
+                        )
+from proxy_server import proxy
+from sod import sod
 from tools.db_tools import (
                             db_maker,
                             db_table_cleaner,
@@ -34,13 +40,13 @@ if __name__ == "__main__":
     """
     parser.add_argument('-dtc', '--table_cleaning',type=str,metavar='',nargs='+', help='Cleans database table')
     """
-3.  -dtc Table cleaner rquires two arguements 1.databse name(m) 
+3.  -dtc Table cleaner rquires two arguments 1.databse name(m) 
     2.table name or delete all=True(o) 
     (-dtc sample tb_name or True)
     """
     parser.add_argument('-dtd', '--table_droper',type=str,metavar='',nargs='+', help='Drops the table from database')
     """
-4.  -dtd Table droper requires 3 arguement 
+4.  -dtd Table droper requires 3 argument 
     1.database name(m) 
     2.table name or drop_all=True or candle_15=y (o)
     3.password(m)
@@ -49,11 +55,40 @@ if __name__ == "__main__":
     """
     parser.add_argument('-dtm', '--table_maker',type=str, metavar='',nargs='+', help='Creates table for given database')
     """
-5.  -dtm Table maker requires 3 arguements
+5.  -dtm Table maker requires 3 arguments
     1.Database name
     2.Table name or nifty100=True or candle_15=y
     3.Password
     (-dtm sample tb_name or True or y)
+    """
+
+    parser.add_argument('-sod', '--start_of_the_day', type=str, metavar='',nargs='+',help='Makes the proxy status for start of the day')
+    """
+6. -sod Start of the day marker rquire only on argement
+    1.Status to be on or off
+    (-sod on or off)
+    """
+
+    parser.add_argument('-pgw', '--pg_writer', type=str, metavar='',nargs='+',help='Loads data to database')
+    """
+7.  -pgw pg_writer requires only one argument 
+    1. y
+    (-pgw y)
+    """
+
+    parser.add_argument('-tn', '--tool_nse', type=str,metavar='',nargs='+',help='Loads the market data at begining or end of the day')
+    """
+8.  -tn tool nse requires two arguement
+    1. sod or eod
+    (-tn sod n or eod n) Note: y for by_pass yesterda's check point.
+
+    """
+
+    parser.add_argument('-px', '--proxy_server', type=str,metavar='',help='Updates proxy server every 5 mins')
+    """
+9. -px proxy server requires only one arguement
+    1. y
+    (-px y)
     """
 
     argument = parser.parse_args()
@@ -142,3 +177,75 @@ if __name__ == "__main__":
         else:
             print('Invalid password')
 
+
+# ------------------------ SOD-----------------------------------
+
+    elif argument.start_of_the_day:
+        args = argument.start_of_the_day
+        switch_on = False
+        switch_off = False
+        if len(args) == 1:
+            if args[0] == 'on':
+                switch_on = True
+            elif args[0] == 'off':
+                switch_off = True
+        else:
+            print('argument limit exceeded, required only one')
+
+        ini = sod.ProxyUsage()
+        if switch_on:
+            ini.make_proxy_status()
+        elif switch_off:
+            ini.make_proxy_status_off()
+        
+            
+# --------------------------- pg_writer-----------------------
+
+    elif argument.pg_writer:
+        args = argument.pg_writer
+        if len(args) == 1:
+            if args[0] == 'y':
+                ini = pg_writer.LiveFeeder()
+                ini.start_feed(db_key='feed')
+            else:
+                print('Given argument is wrong')
+           
+        else:
+            print('argument limit exceeded, required only one')
+
+
+# ----------------------- tool_nse----------------------------
+
+    elif argument.tool_nse:
+        args = argument.tool_nse
+        if len(args) <= 2 :
+            ini = tool_nse.BoundaryData()
+            
+            if args[0] == 'sod' and args[1] == 'y':
+                by_pass = True
+                ini.nse_sod(by_pass=by_pass)
+            elif args[0] == 'sod':
+                ini.nse_sod()
+            elif args[0] == 'eod':
+                ini.nse_eod()
+            else:
+                print('Argument not recognized')
+        else:
+            print('argument limit exceeded, required only one') 
+
+
+
+# --------------------------- Proxy server -----------------------
+
+    elif argument.proxy_server:
+        args = argument.proxy_server
+        if len(args) == 1:
+            if args[0] == 'y':
+                ini = proxy.ProxyServer()
+                ini.store_proxy()
+            else:
+                print('Argument not recognized')
+        else:
+            print('argument limit exceeded, required only one')
+
+            
