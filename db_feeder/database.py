@@ -14,7 +14,7 @@ class PGS(Monitor):
         self._connection = None
         self._cursor = None
         self._autocommit = None
-        super().__init__("Postgress")
+        super().__init__(log_name)
         
 
 
@@ -27,13 +27,6 @@ class PGS(Monitor):
         xxx=None
         is_connected=False
 
-        # if self._connection is not None:
-        #     try:
-        #         self._connection.ping()
-        #         is_connected=True
-        #     except Exception as ex:
-        #         print(ex) 
-
         
         if not is_connected:
             xxx = os.environ.get('P_PASSWORD')
@@ -41,14 +34,18 @@ class PGS(Monitor):
             if db_key:
                 try:
                     self._connection = psycopg2.connect(
-                        user = self._user,
-                        password = xxx,
+                        user = 'dravin',
+                        password = 'wealth',
                         host = '127.0.0.1',
                         port = "5432",
                         database = db_key
                     )
-                    put = 'PGS' if _from is None else _from
-                    self.log_info(f'Connected to {db_key}  successfully from {put}')
+
+                    if _from == 'tool_nse_eod' or _from == 'tool_nse_sod':
+                        pass
+                    else:
+                        put = 'PGS' if _from is None else _from
+                        self.log_info(f'Connected to {db_key}  successfully from {put}')
 
                 except Exception as ex:
                     self.log_error(ex)
@@ -56,4 +53,4 @@ class PGS(Monitor):
 
 if __name__ == "__main__":
     ini = PGS()
-    # ini.connect('sample')
+    ini.connect('sample')

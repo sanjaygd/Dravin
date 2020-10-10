@@ -20,119 +20,95 @@ class BoundaryData(PGS):
 
     def __init__(self):
         self.nse = Nse()
-        super().__init__()
+        super().__init__('tool_nse')
 
 
-    def nse_sod(self,by_pass=None):
-        result1 = self.nse.get_quote('acc')
-        result2 = self.nse.get_quote('wipro')
+    def nse_sod(self,by_pass=None):      
 
-        self.connect('opening_market',_from='tool_nse_sod')
-        cur = self.connection.cursor()
-        _today = datetime.today()
-        yesterday = _today - dt.timedelta(days=1)
+        for key,value in quote_dict_nse.items():
+            ticker_symbol = quote_dict_nse[key]
+            result = self.nse.get_quote(ticker_symbol)
+            data_dict = {}
 
-        op1=None
-        pp1=None
-        op2=None
-        pp2=None
-        sql1 = f"SELECT opening_price,previous_close  FROM acc WHERE date='{yesterday}'"
-        cur.execute(sql1)   
-        yest_data1 = cur.fetchone()
-        if yest_data1 is not None:
-            op1,pp1 = yest_data1
+            data_dict['symbol'] = result['symbol']
+            if data_dict['symbol'] in ['BAJAJ-AUTO','M&amp;M','MCDOWELL-N']:
+                if data_dict['symbol'] == 'BAJAJ-AUTO':
+                    data_dict['symbol'] = 'BAJAJ_AUTO'
+                elif data_dict['symbol'] == 'M&amp;M':
+                    data_dict['symbol'] = 'M_M'
+                elif data_dict['symbol'] == 'MCDOWELL-N':
+                    data_dict['symbol'] = 'MCDOWELL_N'
+                
+            data_dict['opening_price'] = result['open']   
+            data_dict['previous_close'] = result['previousClose']
 
-        sql2 = f"SELECT opening_price,previous_close  FROM wipro WHERE date='{yesterday}'"
-        cur.execute(sql1)   
-        yest_data2 = cur.fetchone()
-        if yest_data2 is not None:
-            op2,pp2 = yest_data2
-        
+            timestamp = datetime.now()
+            _date = timestamp.strftime('%Y-%m-%d')
+            _time = timestamp.strftime('%H:%M:%S')
 
-        timestamp = datetime.now()
-        _date = timestamp.strftime('%Y-%m-%d')
-        self.connect('opening_market',_from='tool_nse_sod')
-        cur = self.connection.cursor()
-
-        sql1 = f"SELECT opening_price,previous_close  FROM acc WHERE date='{_today}'"
-        cur.execute(sql1)
-        check_point1 = cur.fetchone()
-
-        sql2 = f"SELECT opening_price,previous_close  FROM wipro WHERE date='{_today}'"
-        cur.execute(sql2)
-        check_point2 = cur.fetchone()
-
-        
-        if check_point1 is None and check_point2 is None and result1['open'] != op1 and result1['previousClose'] !=pp1 and result2['open'] != op2 and result2['previousClose'] != pp2 :
-            for key,value in quote_dict_nse.items():
-                ticker_symbol = quote_dict_nse[key]
-                result = self.nse.get_quote(ticker_symbol)
-                data_dict = {}
-
-                data_dict['symbol'] = result['symbol']
-                if data_dict['symbol'] in ['BAJAJ-AUTO','M&amp;M','MCDOWELL-N']:
-                    if data_dict['symbol'] == 'BAJAJ-AUTO':
-                        data_dict['symbol'] = 'BAJAJ_AUTO'
-                    elif data_dict['symbol'] == 'M&amp;M':
-                        data_dict['symbol'] = 'M_M'
-                    elif data_dict['symbol'] == 'MCDOWELL-N':
-                        data_dict['symbol'] = 'MCDOWELL_N'
-                    
-                data_dict['opening_price'] = result['open']   
-                data_dict['previous_close'] = result['previousClose']
-
-                timestamp = datetime.now()
-                _date = timestamp.strftime('%Y-%m-%d')
-                _time = timestamp.strftime('%H:%M:%S')
-
-                data = (_date,_time,data_dict['symbol'],data_dict['opening_price'],data_dict['previous_close'])
+            data = (_date,_time,data_dict['symbol'],data_dict['opening_price'],data_dict['previous_close'])
 
 
 
-                if (data_dict['symbol'] is not None and data_dict['opening_price'] is not None and data_dict['previous_close']):
-                    try:
-                        self.connect('opening_market',_from='tool_nse_sod')
-                        cur = self.connection.cursor()
-                        _today = datetime.today()
+            if (data_dict['symbol'] is not None and data_dict['opening_price'] is not None and data_dict['previous_close']):
+                try:
+                    self.connect('opening_market',_from='tool_nse_sod')
+                    cur = self.connection.cursor()
+                    _today = dt.date.today()
+                    todays_name = timestamp.strftime('%A')
+                    yesterday=None
+                    if todays_name == 'Monday':
+                        yesterday = _today - dt.timedelta(days=3)
+                    else:
                         yesterday = _today - dt.timedelta(days=1)
-                        sql1 = f"SELECT opening_price,previous_close  FROM {data_dict['symbol']} WHERE date='{yesterday}'"
-                        cur.execute(sql1)   
-                        yest_data = cur.fetchone()
-                        if yest_data is not None:
-                            op,pp = yest_data
-                            if data_dict['opening_price'] != op   and   data_dict['previous_close'] != pp:
+
+                    sql = f"SELECT symbol from {data_dict['symbol']} WHERE date='{_today}'"
+                    cur.execute(sql)
+                    todays_entry = cur.fetchone()
+
+                    if todays_entry is None:
+                        sql = f"SELECT opening_price,previous_close  FROM {data_dict['symbol']} WHERE date='{_today}'"
+                        cur.execute(sql)
+                        check_point = cur.fetchone()
+                        if check_point is None:
+                            sql1 = f"SELECT opening_price,previous_close  FROM {data_dict['symbol']} WHERE date='{yesterday}'"
+                            cur.execute(sql1)   
+                            yest_data = cur.fetchone()
+
+                            if yest_data is not None:
+                                op,pp = yest_data
+                                if data_dict['opening_price'] != op   and   data_dict['previous_close'] != pp:
+                                    sql = f'INSERT INTO {data_dict["symbol"]}(date,time,symbol,opening_price,previous_close) values {data}'                
+                                    cur.execute(sql)
+                                    self.connection.commit()                            
+                                else:
+                                    self.log_warning('data not updated with nse tool')
+                                    break
+                            elif by_pass:
                                 sql = f'INSERT INTO {data_dict["symbol"]}(date,time,symbol,opening_price,previous_close) values {data}'                
                                 cur.execute(sql)
-                                self.connection.commit()                            
+                                self.connection.commit()
+                                print(data_dict['symbol'])
                             else:
-                                self.log_warning('data not updated with nse tool')
-                                break
-                        elif by_pass:
-                            sql = f'INSERT INTO {data_dict["symbol"]}(date,time,symbol,opening_price,previous_close) values {data}'                
-                            cur.execute(sql)
-                            self.connection.commit()
-                            print(data_dict['symbol'])
+                                self.log_warning("yesterday's data not found")
                         else:
-                            self.log_warning("yesterday's data not found")
-                        
-                        
-                    except (Exception, psycopg2.Error) as error :
-                        self.log_error(error)
+                            self.log_info(f"opening market data already update for {data_dict['symbol']}")
+                    else:
+                        print('today data already updated')
+                        continue   
+                except (Exception, psycopg2.Error) as error :
+                    self.log_error(error)
 
-                    finally:
-                        if self.connection:
-                            cur.close()
-                            self.connection.close()
+                finally:
+                    if self.connection:
+                        cur.close()
+                        self.connection.close()
 
-                else:
-                    self.log_warning("Some data missing")
-        else:
-            if check_point1 is None and check_point2 is None:
-                self.log_info("Today's data already updated")
             else:
-                self.log_info("nse_tool not yet updated")        
+                self.log_warning("Some data missing")        
                 
     def nse_eod(self):
+        self.log_info('started loading nse_eod')
         for key,value in quote_dict_nse.items():
             ticker_symbol = quote_dict_nse[key]
             result = self.nse.get_quote(ticker_symbol)
@@ -159,7 +135,7 @@ class BoundaryData(PGS):
                     sql = f"UPDATE {table_name} SET day_high = {data_dict['day_high']}, day_low = {data_dict['day_low']} WHERE date='{dt.date.today()}'"                
                     cur.execute(sql)
                     self.connection.commit()
-                    self.log_info('nse_eod data updated successfully')
+                    
                     print(table_name)
                 except (Exception, psycopg2.Error) as error :
                     self.log_error(error)
@@ -170,13 +146,14 @@ class BoundaryData(PGS):
                         self.connection.close()
             else:
                 self.log_warning("Some data missing")
+        self.log_info('end of loading nse_eod')
 
 
 
 if __name__ == "__main__":
     ini = BoundaryData()
-    ini.nse_sod(by_pass=True)
-    # ini.nse_eod()
+    # ini.nse_sod(by_pass=True)
+    ini.nse_eod()
 
 
 

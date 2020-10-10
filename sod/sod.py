@@ -59,5 +59,5 @@ class ProxyUsage(PGS):
 
 if __name__ == "__main__":
     ini = ProxyUsage()
-    # ini.make_proxy_status()
+    ini.make_proxy_status()
     # ini.make_proxy_status_off()

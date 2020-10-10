@@ -15,6 +15,7 @@ class Monitor():
         self.toady = date.today()
         self.file_name = f"{self.toady}.log"
         self.LOG_FILE = os.path.join(self.LOG_DIR,self.file_name)
+        # self.log_name = log_name
 
         self.logger = logging.getLogger(log_name)
         self.logger.setLevel(logging.INFO)

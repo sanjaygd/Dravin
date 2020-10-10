@@ -6,7 +6,7 @@ from quote_lib.ticker_symbol import quote_dict
 
 class TableDroper(PGS):
     def __init__(self):
-        super().__init__()
+        super().__init__('db_table_dropper')
 
         
 

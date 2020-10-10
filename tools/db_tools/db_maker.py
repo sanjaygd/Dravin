@@ -7,6 +7,8 @@ from db_feeder.database import PGS
 
 
 class DBCreater(PGS):
+    def __init__(self):
+        super().__init__('db_maker')
 
     def create_db(self,db_key=None,db_name=None):
         if db_name:
@@ -37,6 +39,6 @@ class DBCreater(PGS):
 
 if __name__ == "__main__":
     x = DBCreater()
-    # x.create_db()
+    # x.create_db(db_name='demo4')
 
             

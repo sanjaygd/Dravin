@@ -86,9 +86,17 @@ if __name__ == "__main__":
 
     parser.add_argument('-px', '--proxy_server', type=str,metavar='',help='Updates proxy server every 5 mins')
     """
-9. -px proxy server requires only one arguement
+9. -px proxy_server requires only one arguement
     1. y
     (-px y)
+    """
+
+    parser.add_argument('-mn', '--monitor', type=str, metavar='',nargs='+', help='Creates table for monitor')
+    """
+10. -mn monitor requires two arguement and one is optional
+    1. f or ft
+    2.db_key = 'some db' (o)
+    (-mn f or ft)
     """
 
     argument = parser.parse_args()
@@ -118,7 +126,7 @@ if __name__ == "__main__":
         else:
             print('argument limit exceeded, required only two')
 
-        ini = db_table_cleaner.TableCleaner()
+        ini = db_table_cleaner.TableCleaner('db_table_cleaner')
         ini.clean_table(db_key=db_key,tb_name=tb_name,delete_all=delete_all)
 
 
@@ -205,7 +213,7 @@ if __name__ == "__main__":
         args = argument.pg_writer
         if len(args) == 1:
             if args[0] == 'y':
-                ini = pg_writer.LiveFeeder()
+                ini = pg_writer.LiveFeeder('pg_writer')
                 ini.start_feed(db_key='feed')
             else:
                 print('Given argument is wrong')
@@ -241,7 +249,7 @@ if __name__ == "__main__":
         args = argument.proxy_server
         if len(args) == 1:
             if args[0] == 'y':
-                ini = proxy.ProxyServer()
+                ini = proxy.ProxyServer('proxy')
                 ini.store_proxy()
             else:
                 print('Argument not recognized')
@@ -249,3 +257,14 @@ if __name__ == "__main__":
             print('argument limit exceeded, required only one')
 
             
+
+# ---------------------Monitor_table---------------------------
+
+    elif argument.monitor:
+        args = argument.monitor
+        if len(args) < 2:
+            ini = db_table_maker.TableMaker()
+            if args[0] == 'f':  
+                ini.create_monitor_table(candle='f')
+            elif args[0] == 'ft':
+                ini.create_monitor_table(candle='ft')

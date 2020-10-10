@@ -15,13 +15,13 @@ class ProxyServer(PGS):
     This script collects proxy server ip address and stores it in local database
 
     """
-    # def __init__(self):
-        
-    #     super().__init__()
+
 
     def get_proxy(self):
         url = 'https://www.sslproxies.org/'
         response = None
+        
+        proxy_list = []
         try:
             
             self.connect('proxy',_from='proxy.get_proxy')
@@ -33,7 +33,7 @@ class ProxyServer(PGS):
             cur.execute(sql)
             today_status = cur.fetchone()
             _date,status = today_status
-            proxy_list = []
+            
             proxy_failed =False
             if status == True:
                 try:

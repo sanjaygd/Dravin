@@ -22,7 +22,7 @@ class DataFeed(PGS):
         proxy_failed = False
         url = 'https://economictimes.indiatimes.com/markets/nifty-100/indexsummary/indexid-2510,exchange-50.cms'
         
-
+        self.log_info('****')
         self.connect('proxy',_from='et_grab') 
         cur = self.connection.cursor()
         sql = 'SELECT ip,time FROM ip_address'
@@ -104,11 +104,11 @@ class DataFeed(PGS):
         # print(len(quot_data))
         self.log_info(f'et_grab done successfully! and number of companies listed today {len(quot_data)}')
         if proxy_failed:
-            self.log_warning('Proxy failed fetch through original ip')
+            self.log_warning('Proxy failed fetch through original ip. From et_grab.DataFeed.get_feedd')
         return quot_data
 
 
 if __name__ == "__main__":
-    data_feed = DataFeed()
-    # data_feed.get_feed()
+    data_feed = DataFeed('et_grab')
+    data_feed.get_feed()
     
