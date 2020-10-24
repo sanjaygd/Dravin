@@ -41,11 +41,11 @@ class DataFeed(PGS):
                 print(proxy_count)
                 
                 try:
-                    if not proxy_count == 20:
+                    if not proxy_count == 5:
                         response = requests.request('get',url,proxies=using_proxy,timeout=3)
                         succuss_to_connect = True
                         break
-                    if proxy_count == 20:
+                    if proxy_count == 5:
                         response = requests.get(url)
                         succuss_to_connect = True
                         proxy_failed =True

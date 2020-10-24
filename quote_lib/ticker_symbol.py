@@ -60,3 +60,14 @@ quote_dict_nse = { 'ACC':'ACC', 'Abbott India':'ABBOTINDIA', 'Adani Ports SEZ':'
                 'UltraTech Cem.':'ULTRACEMCO', 'United Brewerie':'UBL','United Spirits':'MCDOWELL-N', 'Wipro':'WIPRO', 'Zee Ent.':'ZEEL'
 
             }
+
+nifty_50_list = [   'ADANIPORTS', 'ASIANPAINT', 'AXISBANK', 'BAJAJFINSV', 'BAJAJ_AUTO', 'BAJFINANCE', 
+                    'BHARTIARTL', 'BPCL', 'BRITANNIA', 'CIPLA', 'COALINDIA', 'DIVISLAB', 'DRREDDY', 
+                    'EICHERMOT', 'GAIL', 'GRASIM', 'HCLTECH', 'HDFC', 'HDFCBANK', 'HDFCLIFE', 
+                    'HEROMOTOCO', 'HINDALCO', 'HINDUNILVR', 'ICICIBANK', 'INDUSINDBK', 'INFY', 'IOC', 
+                    'ITC', 'JSWSTEEL', 'KOTAKBANK', 'LT', 'MARUTI', 'M_M', 'NESTLEIND', 'NTPC', 'ONGC', 
+                    'POWERGRID', 'RELIANCE', 'SBILIFE', 'SBIN', 'SHREECEM', 'SUNPHARMA', 'TATAMOTORS', 
+                    'TATASTEEL', 'TCS', 'TECHM', 'TITAN', 'ULTRACEMCO', 'UPL', 'WIPRO'
+                    ]
+
+

@@ -2,4 +2,5 @@ z_expy/
 *.pyc
 *__pycache__*
 log/
+cred/
 

@@ -4,16 +4,14 @@ import os
 
 from db_feeder import  (
                         pg_writer,
-                        tool_nse
                         )
 from proxy_server import proxy
-from sod import sod
+
 from tools.db_tools import (
                             db_maker,
                             db_table_cleaner,
                             db_table_droper,
                             db_table_maker,
-                            some
                             )
 
 
@@ -57,17 +55,11 @@ if __name__ == "__main__":
     """
 5.  -dtm Table maker requires 3 arguments
     1.Database name
-    2.Table name or nifty100=True or candle_15=y
+    2.Table name or nifty50=True or candle_15=y
     3.Password
     (-dtm sample tb_name or True or y)
     """
 
-    parser.add_argument('-sod', '--start_of_the_day', type=str, metavar='',nargs='+',help='Makes the proxy status for start of the day')
-    """
-6. -sod Start of the day marker rquire only on argement
-    1.Status to be on or off
-    (-sod on or off)
-    """
 
     parser.add_argument('-pgw', '--pg_writer', type=str, metavar='',nargs='+',help='Loads data to database')
     """
@@ -76,13 +68,6 @@ if __name__ == "__main__":
     (-pgw y)
     """
 
-    parser.add_argument('-tn', '--tool_nse', type=str,metavar='',nargs='+',help='Loads the market data at begining or end of the day')
-    """
-8.  -tn tool nse requires two arguement
-    1. sod or eod
-    (-tn sod n or eod n) Note: y for by_pass yesterda's check point.
-
-    """
 
     parser.add_argument('-px', '--proxy_server', type=str,metavar='',help='Updates proxy server every 5 mins')
     """
@@ -91,13 +76,7 @@ if __name__ == "__main__":
     (-px y)
     """
 
-    parser.add_argument('-mn', '--monitor', type=str, metavar='',nargs='+', help='Creates table for monitor')
-    """
-10. -mn monitor requires two arguement and one is optional
-    1. f or ft
-    2.db_key = 'some db' (o)
-    (-mn f or ft)
-    """
+
 
     argument = parser.parse_args()
 
@@ -171,7 +150,7 @@ if __name__ == "__main__":
             if len(args) == 2:
                 db_key = args[0]
                 if args[1] == 'True':
-                    nifty100 = True
+                    nifty50 = True
                 elif args[1] == 'y':
                     candle_15 = True
                 else:
@@ -180,31 +159,11 @@ if __name__ == "__main__":
                 print('argument limit exceeded, required only two')
 
             ini = db_table_maker.TableMaker()
-            ini.create_tables(db_key=db_key,tb_name=tb_name,nifty100=nifty100,candle_15=candle_15)
+            ini.create_tables(db_key=db_key,tb_name=tb_name,nifty50=nifty50,candle_15=candle_15)
             
         else:
             print('Invalid password')
 
-
-# ------------------------ SOD-----------------------------------
-
-    elif argument.start_of_the_day:
-        args = argument.start_of_the_day
-        switch_on = False
-        switch_off = False
-        if len(args) == 1:
-            if args[0] == 'on':
-                switch_on = True
-            elif args[0] == 'off':
-                switch_off = True
-        else:
-            print('argument limit exceeded, required only one')
-
-        ini = sod.ProxyUsage()
-        if switch_on:
-            ini.make_proxy_status()
-        elif switch_off:
-            ini.make_proxy_status_off()
         
             
 # --------------------------- pg_writer-----------------------
@@ -222,25 +181,6 @@ if __name__ == "__main__":
             print('argument limit exceeded, required only one')
 
 
-# ----------------------- tool_nse----------------------------
-
-    elif argument.tool_nse:
-        args = argument.tool_nse
-        if len(args) <= 2 :
-            ini = tool_nse.BoundaryData()
-            
-            if args[0] == 'sod' and args[1] == 'y':
-                by_pass = True
-                ini.nse_sod(by_pass=by_pass)
-            elif args[0] == 'sod':
-                ini.nse_sod()
-            elif args[0] == 'eod':
-                ini.nse_eod()
-            else:
-                print('Argument not recognized')
-        else:
-            print('argument limit exceeded, required only one') 
-
 
 
 # --------------------------- Proxy server -----------------------
@@ -257,14 +197,3 @@ if __name__ == "__main__":
             print('argument limit exceeded, required only one')
 
             
-
-# ---------------------Monitor_table---------------------------
-
-    elif argument.monitor:
-        args = argument.monitor
-        if len(args) < 2:
-            ini = db_table_maker.TableMaker()
-            if args[0] == 'f':  
-                ini.create_monitor_table(candle='f')
-            elif args[0] == 'ft':
-                ini.create_monitor_table(candle='ft')

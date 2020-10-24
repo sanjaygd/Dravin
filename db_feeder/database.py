@@ -1,6 +1,7 @@
 import os
 import psycopg2
 
+from tools.ini_writer.cred_picker import Agent
 from tools.log_writer.log_register import Monitor
 
 
@@ -24,31 +25,27 @@ class PGS(Monitor):
         
 
     def connect(self,db_key=None,db_name=None,_from=None):
-        xxx=None
-        is_connected=False
 
-        
-        if not is_connected:
-            xxx = os.environ.get('P_PASSWORD')
+        if db_key:
+            ini = Agent()
+            user,xxx = ini.read_cred()
+            try:
+                self._connection = psycopg2.connect(
+                    user = user,
+                    password = xxx,
+                    host = '127.0.0.1',
+                    port = "5432",
+                    database = db_key
+                )
 
-            if db_key:
-                try:
-                    self._connection = psycopg2.connect(
-                        user = 'dravin',
-                        password = 'wealth',
-                        host = '127.0.0.1',
-                        port = "5432",
-                        database = db_key
-                    )
+                if _from == 'tool_nse_eod' or _from == 'tool_nse_sod':
+                    pass
+                else:
+                    put = 'PGS' if _from is None else _from
+                    self.log_info(f'Connected to {db_key}  successfully from {put}')
 
-                    if _from == 'tool_nse_eod' or _from == 'tool_nse_sod':
-                        pass
-                    else:
-                        put = 'PGS' if _from is None else _from
-                        self.log_info(f'Connected to {db_key}  successfully from {put}')
-
-                except Exception as ex:
-                    self.log_error(ex)
+            except Exception as ex:
+                self.log_error(ex)
 
 
 if __name__ == "__main__":
