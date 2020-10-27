@@ -4,6 +4,7 @@ import os
 
 from db_feeder import  (
                         pg_writer,
+                        sleep_60
                         )
 from proxy_server import proxy
 
@@ -76,9 +77,16 @@ if __name__ == "__main__":
     (-px y)
     """
 
+    parser.add_argument('-sl', '--sleep', type=str,metavar='',help='Helps to delay')
 
 
     argument = parser.parse_args()
+
+
+
+    if argument.sleep:
+        args = argument.sleep
+        sleep_60.sleep()
 
 
 # ---------------------DB creation------------------------------

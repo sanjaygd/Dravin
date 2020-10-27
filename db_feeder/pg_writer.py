@@ -41,12 +41,37 @@ class LiveFeeder(PGS):
                 cur = self.connection.cursor()
                 data_ini = Datafeed()
                 data_set = data_ini.get_feed()
-                for ticker_dict in data_set:
-                    for tb_name,data in ticker_dict.items():                        
-                        sql = f'INSERT INTO {tb_name}(symbol,date,last_update_time,insert_time,open,high,low,preclose,ltp,cng,pcng,volume,value,request_count,advances,declines) values {data}'
+                if len(data_set) != 0:
+                    for ticker_dict in data_set:
+                        for tb_name,data in ticker_dict.items():                        
+                            sql = f'INSERT INTO {tb_name}(symbol,date,last_update_time,insert_time,open,high,low,preclose,ltp,cng,pcng,volume,value,request_count) values {data}'
+                            cur.execute(sql)
+                            self.connection.commit()
+                    self.log_info('pg_writer loaded 5 min candle data successufully')
+                else:
+                    symbol='NULL'
+                    _date='NULL'
+                    last_update_time='NULL'
+                    insert_time='NULL'
+                    _open=0
+                    high=0
+                    low=0
+                    preclose=0
+                    ltp=0
+                    cng=0
+                    pcng=0
+                    volume=0
+                    value=0
+                    request_count=0
+                    advances=0
+                    declines=0
+                    data = (symbol,last_update_time,_open,high,low,preclose,ltp,cng,pcng,volume,value,request_count,advances,declines)
+                    for tb_name in nifty_50_list:
+                        sql = f'INSERT INTO {tb_name}(symbol,last_update_time,open,high,low,preclose,ltp,cng,pcng,volume,value,request_count,advances,declines) values {data}'
                         cur.execute(sql)
                         self.connection.commit()
-                self.log_info('pg_writer loaded 5 min candle data successufully')
+                    self.log_warning('pg_writer loaded 5 min candle data as NULL')
+
 
                 
 

@@ -24,30 +24,46 @@ class Datafeed(PGS):
                 'accept-language': 'en,gu;q=0.9,hi;q=0.8', 'accept-encoding': 'gzip, deflate, br',
                 'Connection' : 'keep-alive',
                 }
-
-        session = requests.Session()
-        request = session.get(url_oc, headers=headers, timeout=5)
-        cookies = dict(request.cookies)
+        
+        session = None
+        request = None
+        cookies = None
         data = None
         status_code = None
         count = 0
+        try:
+            session = requests.Session()
+            request = session.get(url_oc, headers=headers, timeout=5)
+            cookies = dict(request.cookies)
+            data = None
+            status_code = None
+            count = 0
+        except Exception as er:
+                print(er)
+        
         while status_code != 200:
             count+=1 
             try:
                 response = session.get(url, headers=headers, timeout=5, cookies=cookies)
                 data = response.json()
+                # print(response.text)
                 status_code = response.status_code
                 cookies = dict(response.cookies)
+                print(count)
+                if count == 20:
+                    break
                 
             except Exception as er:
-                print(er)   
-        
+                # print(er)
+                if count == 20:
+                    break   
         try:
+            
             bundle = data['data']
-            advances = data['advance']['advances']
-            advances = int(advances)
-            declines = data['advance']['declines']
-            declines = int(declines)
+            # advances = data['advance']['advances']
+            # advances = int(advances)
+            # declines = data['advance']['declines']
+            # declines = int(declines)
             for ele in bundle[1:]:
                 tick = {}
                 symbol = ele['symbol']
@@ -73,12 +89,13 @@ class Datafeed(PGS):
                 _date = timestamp.strftime('%Y-%m-%d')
                 insert_time = timestamp.strftime('%H:%M:%S')
                 
-                data = (symbol,_date,last_update_time,insert_time,_open,high,low,preclose,ltp,cng,pcng,volume,value,request_count,advances,declines)
+                data = (symbol,_date,last_update_time,insert_time,_open,high,low,preclose,ltp,cng,pcng,volume,value,request_count)
                 tick[symbol] = data
                 data_list.append(tick)
                 
         except Exception as er:
             self.log_error(er)
+            print(er)
         # print(data_list)
         return data_list
 
