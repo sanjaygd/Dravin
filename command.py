@@ -6,6 +6,7 @@ from db_feeder import  (
                         pg_writer,
                         sleep_60
                         )
+from indicators import moving_avg,pivot_points
 from proxy_server import proxy
 
 from tools.db_tools import (
@@ -64,7 +65,7 @@ if __name__ == "__main__":
 
     parser.add_argument('-pgw', '--pg_writer', type=str, metavar='',nargs='+',help='Loads data to database')
     """
-7.  -pgw pg_writer requires only one argument 
+6.  -pgw pg_writer requires only one argument 
     1. y
     (-pgw y)
     """
@@ -72,13 +73,30 @@ if __name__ == "__main__":
 
     parser.add_argument('-px', '--proxy_server', type=str,metavar='',help='Updates proxy server every 5 mins')
     """
-9. -px proxy_server requires only one arguement
+7. -px proxy_server requires only one arguement
     1. y
     (-px y)
     """
 
     parser.add_argument('-sl', '--sleep', type=str,metavar='',help='Helps to delay')
 
+    """
+8.  
+    """
+
+    parser.add_argument('-a', '--average', type=str, metavar='',help='Writes the moving averages')
+    """
+9.  -a average requires only one argument
+    1.y
+    (-a y)
+    """
+
+    parser.add_argument('-pv', '--pivot', type=str, metavar='', help='Writes the pivot points')
+    """
+10. -pv pivot requires only one argument
+    1.y
+    (-pv y)
+    """
 
     argument = parser.parse_args()
 
@@ -204,4 +222,30 @@ if __name__ == "__main__":
         else:
             print('argument limit exceeded, required only one')
 
-            
+
+# --------------------- Moving Average------------------
+
+    elif argument.average:
+        args = argument.average
+        if len(args) == 1:
+            if args[0] == 'y':
+                ini = moving_avg.MA()
+                ini.ma()
+            else:
+                print('Argument not recognized')
+        else:
+            print('argument limit exceeded, required only one')
+
+
+# --------------------------Pivot Points -------------------
+
+    elif argument.pivot:
+        args = argument.pivot
+        if len(args) == 1:
+            if args[0] == 'y':
+                ini = pivot_points.PivotPoints()
+                ini.pivots()
+            else:
+                print('Argument not recognized')
+        else:
+            print('argument limit exceeded, required only one')

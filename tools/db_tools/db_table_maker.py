@@ -93,16 +93,16 @@ class TableMaker(PGS):
                 print('All Okay')
 
 
-    def create_pivot_table(self,db_key='pivot'):
+    def create_pivot_table(self,db_key='feed'):
         try:               
             self.connect(db_key)
             
             cur = self.connection.cursor()
             for tb_name in nifty_50_list:
-                sql = f"CREATE TABLE IF NOT EXISTS {tb_name}(date DATE NOT NULL, time TIME NOT NULL, cpr DECIMAL NOT NULL, cpr1 DECIMAL NOT NULL, cpr2 DECIMAL NOT NULL, r1 DECIMAL NOT NULL, r2 DECIMAL NOT NULL, r3 DECIMAL NOT NULL, s1 DECIMAL NOT NULL, s2 DECIMAL NOT NULL, s3 DECIMAL NOT NULL)"
+                sql = f"CREATE TABLE IF NOT EXISTS {tb_name}_piv(date DATE NOT NULL, time TIME NOT NULL, cpr DECIMAL NOT NULL, cpr1 DECIMAL NOT NULL, cpr2 DECIMAL NOT NULL, r1 DECIMAL NOT NULL, r2 DECIMAL NOT NULL, r3 DECIMAL NOT NULL, s1 DECIMAL NOT NULL, s2 DECIMAL NOT NULL, s3 DECIMAL NOT NULL, band_width DECIMAL NOT NULL,pre_high DECIMAL NOT NULL, pre_low DECIMAL NOT NULL)"
                 cur.execute(sql)
                 self.connection.commit()
-                print(f'Table {tb_name} created successfully')
+                print(f'Table {tb_name}_piv created successfully')
 
         except (Exception, psycopg2.Error) as error :
             print ("Error while connecting to PGSQL", error)
