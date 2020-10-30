@@ -18,7 +18,8 @@ class Selector(PGS):
             self.connect('feed')
             # print(self.connection)
             cur = self.connection.cursor()
-            
+            long_count = 0
+            short_count = 0
             for tb_name in nifty_50_list:
                 # ltp = None
                 # _open = None
@@ -28,27 +29,50 @@ class Selector(PGS):
                 # ma_200 = None
                 # pre_high = None
                 # pre_low = None
-                sql = f"SELECT symbol,ltp,open,pcng,ma_20,ma_200 FROM {tb_name} ORDER BY row_count DESC LIMIT 1"
+                sql = f"SELECT symbol,ltp,last_update_time,open,pcng,ma_20,ma_200 FROM {tb_name} ORDER BY row_count DESC LIMIT 1"
                 cur.execute(sql)
                 result = cur.fetchone()
-                symbol,ltp,_open,pcng,ma_20,ma_200 = result
-                print(symbol)
-                today = datetime.now().date().strftime('%Y-%m-%d')
+                symbol,ltp,last_update_time,_open,pcng,ma_20,ma_200 = result
 
-                sql1 = f"SELECT cpr,pre_high,pre_low from {tb_name}_piv WHERE date='{today}'"
+                print(symbol,pcng)
+                today = datetime.now().date().strftime('%Y-%m-%d')
+                time_now = datetime.now().time().strftime('%H:%M:%S')
+                sql1 = f"SELECT cpr1,cpr2,pre_high,pre_low from {tb_name}_piv WHERE date='{today}'"
                 cur.execute(sql1)
                 result = cur.fetchone()
-                cpr,pre_high,pre_low = result
+                cpr1,cpr2,pre_high,pre_low = result
 
-                print(ltp>_open, ltp>pre_high , pcng<=1.7 , ltp>cpr , ltp>ma_20 , ltp>ma_200 , ma_20>ma_200)
-                if ltp>_open and ltp>pre_high and pcng<=1.7 and ltp>cpr and ltp>ma_20 and ltp>ma_200 and ma_20>ma_200:
-                    print(symbol, 'is prefered for long trade')
-                elif ltp<_open and ltp<pre_low and pcng>=-1.7 and ltp<cpr and ltp<ma_20 and ltp<ma_200 and ma_20<ma_200:
-                    print(symbol, 'prefered for short trade')
+                pcng = float(pcng)
+                ltp = float(ltp)
+                _open = float(_open)
+                pre_high = float(pre_high)
+                pre_low = float(pre_low)
+                cpr1 = float(cpr1)
+                cpr2 = float(cpr2)
+                if ltp>_open and ltp>pre_high and pcng<=1.7 and ltp>cpr1 and ltp>ma_20 and ltp>ma_200 and ma_20>ma_200:
+                    long_count+=1
+                    
+                    data = (today,last_update_time,time_now,symbol,ltp,pcng,_open,pre_high,pre_low,cpr1,cpr2,'long')
+                    sql2 = f"INSERT INTO selector (date,last_update_time,insert_time,symbol,ltp,pcng,open,pre_high,pre_low,cpr1,cpr2,type) values {data}"
+                    print(sql2)
+                    cur.execute(sql2)
+                    self.connection.commit()
+                    self.log_info( f'{symbol} is prefered for long trade')
+                    print( f'{symbol} is prefered for long trade')
+                elif ltp<_open and ltp<pre_low and pcng>=-1.7 and ltp<cpr2 and ltp<ma_20 and ltp<ma_200 and ma_20<ma_200:
+                    short_count+=1
+                    data = (today,last_update_time,time_now,symbol,ltp,pcng,_open,pre_high,pre_low,cpr1,cpr2,'short')
+                    sql2 = f"INSERT INTO selector (date,last_update_time,insert_time,symbol,ltp,pcng,open,pre_high,pre_low,cpr1,cpr2,type) values {data}"
+                    print(sql2)
+                    cur.execute(sql2)
+                    self.connection.commit()
+                    self.log_info(f'{symbol} prefered for short trade')
+                    print(f'{symbol} prefered for short trade')
                 else:
                     print('found nothing')
+            self.log_info(f"No. of bull stocks : {long_count}. No. of bear stocks {short_count}")
         except (Exception, psycopg2.Error) as error :
-                print ("Error while connecting to PGSQL", error)
+                print (error)
 
         finally:
             if self.connection:

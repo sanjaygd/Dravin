@@ -114,6 +114,45 @@ class TableMaker(PGS):
             else:
                 print('All Okay')
 
+    # def create_selector(self,db_key='feed'):
+    #     try:               
+    #         self.connect(db_key)
+            
+    #         cur = self.connection.cursor()
+    #         sql = f"CREATE TABLE IF NOT EXISTS selector(row_count SERIAL, date DATE NOT NULL, last_update_time TIME NOT NULL, insert_time TIME NOT NULL,symbol VARCHAR(25), ltp DECIMAL NOT NULL,pcng DECIMAL NOT NULL, open DECIMAL NOT NULL, pre_high DECIMAL NOT NULL, pre_low DECIMAL NOT NULL, cpr1 DECIMAL NULL, cpr2 DECIMAL NULL, type VARCHAR(10) NOT NULL)"
+    #         cur.execute(sql)
+    #         self.connection.commit()
+    #         print('selector table created successfully')
+
+    #     except (Exception, psycopg2.Error) as error :
+    #         print ("Error while connecting to PGSQL", error)
+
+    #     finally:
+    #         if self.connection:
+    #             cur.close()
+    #             self.connection.close()
+    #         else:
+    #             print('All Okay')
+    
+    def create_selector(self,db_key='opportunity'):
+        try:               
+            self.connect(db_key)
+            
+            cur = self.connection.cursor()
+            sql = f"CREATE TABLE IF NOT EXISTS selector(row_count SERIAL, date DATE NOT NULL, last_update_time TIME NOT NULL, insert_time TIME NOT NULL,symbol VARCHAR(25), ltp DECIMAL NOT NULL,pcng DECIMAL NOT NULL,type VARCHAR(10) NOT NULL,status VARCHAR(10))"
+            cur.execute(sql)
+            self.connection.commit()
+            print('selector table created successfully')
+
+        except (Exception, psycopg2.Error) as error :
+            print ("Error while connecting to PGSQL", error)
+
+        finally:
+            if self.connection:
+                cur.close()
+                self.connection.close()
+            else:
+                print('All Okay')
 
 
 
@@ -122,7 +161,8 @@ if __name__ == "__main__":
     x = TableMaker()
     # x.create_tables(db_key='sample', tb_name='demo1')
     # x.create_proxy_ip_table()
-    x.create_pivot_table()
+    # x.create_pivot_table()
+    x.create_selector()
     
 
 

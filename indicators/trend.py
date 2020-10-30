@@ -61,7 +61,7 @@ class Trend(PGS):
             if self.connection:
                 cur.close()
                 self.connection.close()
-        print(advance,decline)
+        # print(advance,decline)
         return advance,decline
 
 

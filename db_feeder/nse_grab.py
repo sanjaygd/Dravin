@@ -64,7 +64,7 @@ class Datafeed(PGS):
             # advances = int(advances)
             # declines = data['advance']['declines']
             # declines = int(declines)
-            for ele in bundle[1:]:
+            for ele in bundle:
                 tick = {}
                 symbol = ele['symbol']
                 if symbol in ['M&M','BAJAJ-AUTO']:
