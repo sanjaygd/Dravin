@@ -4,6 +4,7 @@ import psycopg2
 
 from db_feeder.database import PGS
 from indicators.trend import Trend
+from quote_lib.ticker_symbol import nifty_50_list,weightage
 
 
 
@@ -66,9 +67,51 @@ class Opener(PGS):
             else:
                 print('All Okay')
 
+    def weightage_entry(self):
+        try:
+            self.connect('feed')
+            cur = self.connection.cursor()
+            adc = 0
+            dec = 0
+            ad_weight = []
+            de_weight = []
+            for tb_name in nifty_50_list:
+                sql = f'SELECT last_update_time,symbol,ltp from {tb_name} ORDER BY row_count DESC LIMIT 2'
+                cur.execute(sql)
+                result = cur.fetchall()
+                x,y = result
+                # print(result)
+                lut,symbol,nltp = x
+                lutt,symbol,oltp = y
+                pcng = float((nltp-oltp)/oltp*100)
+                wgt = round(weightage[symbol]*pcng,4)
+                # print(symbol,wgt)
+                if nltp>oltp:
+                    adc+=1
+                if oltp>nltp:
+                    dec+=1
 
+                if wgt > 0:
+                    ad_weight.append(pcng)
+                elif wgt < 0:
+                    de_weight.append(pcng)
+                
+            ad = round(sum(ad_weight),4)
+            de = round(sum(de_weight),4)
+            de = de*-1
+            print(ad,de,lut)
+            print(adc,dec)
+                
+        except (Exception, psycopg2.Error) as error :
+                print ("Error while connecting to PGSQL", error)
+
+        finally:
+            if self.connection:
+                cur.close()
+                self.connection.close()
 
 
 if __name__ == "__main__":
     ini = Opener()
-    ini.entry()    
+    # ini.entry()   
+    ini.weightage_entry() 

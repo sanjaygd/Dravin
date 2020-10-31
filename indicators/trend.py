@@ -44,14 +44,15 @@ class Trend(PGS):
                 sql = f'SELECT symbol,pcng from {tb_name} ORDER BY row_count DESC LIMIT 3'
                 cur.execute(sql)
                 result = cur.fetchall()
-                a,b,c = result
+                a,b,c,d = result
                 # print(a,b,c)
+                # _,__,p = 
                 _,x = a
                 _,y = b
                 _,z = c
-                if z > x:
+                if z > y:
                     advance+=1
-                elif z < x:
+                elif z < y:
                     decline+=1
                 
         except (Exception, psycopg2.Error) as error :

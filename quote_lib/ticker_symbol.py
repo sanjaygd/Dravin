@@ -71,3 +71,18 @@ nifty_50_list = [   'ADANIPORTS', 'ASIANPAINT', 'AXISBANK', 'BAJAJFINSV', 'BAJAJ
                     ]
 
 
+weightage = {
+                'ADANIPORTS':0.52, 'ASIANPAINT':1.99, 'AXISBANK':2.43, 'BAJAJFINSV':0.67, 
+                'BAJAJ_AUTO':0.75, 'BAJFINANCE':1.75, 'BHARTIARTL':2.08, 'BPCL':0.57, 'BRITANNIA':0.82, 
+                'CIPLA':0.76, 'COALINDIA':0.48, 'DIVISLAB':0.80, 'DRREDDY':1.18, 'EICHERMOT':0.58, 
+                'GAIL':0.31, 'GRASIM':0.61, 'HCLTECH':1.82, 'HDFC':6.87, 'HDFCBANK':10.25, 
+                'HDFCLIFE':0.93, 'HEROMOTOCO':0.72, 'HINDALCO':0.50, 'HINDUNILVR':3.69, 
+                'ICICIBANK':5.4, 'INDUSINDBK':0.66, 'INFY':7.74, 'IOC':0.40, 'ITC':2.88, 
+                'JSWSTEEL':0.61, 'KOTAKBANK':4.52, 'LT':2.26, 'MARUTI':1.85, 'M_M':1.13, 
+                'NESTLEIND':1.22, 'NTPC':0.85, 'ONGC':0.47, 'POWERGRID':0.87, 'RELIANCE':13.24, 
+                'SBILIFE':0.60, 'SBIN':1.45, 'SHREECEM':0.58, 'SUNPHARMA':1.0, 'TATAMOTORS':0.47, 
+                'TATASTEEL':0.62, 'TCS':5.58, 'TECHM':1.0, 'TITAN':0.97, 'ULTRACEMCO':1.05, 'UPL':0.50, 
+                'WIPRO':1.01
+                    
+            }
+
