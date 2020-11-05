@@ -93,13 +93,13 @@ class TableMaker(PGS):
                 print('All Okay')
 
 
-    def create_pivot_table(self,db_key='feed'):
+    def create_pivot_table(self,db_key='pivot'):
         try:               
             self.connect(db_key)
             
             cur = self.connection.cursor()
             for tb_name in nifty_50_list:
-                sql = f"CREATE TABLE IF NOT EXISTS {tb_name}_piv(date DATE NOT NULL, time TIME NOT NULL, cpr DECIMAL NOT NULL, cpr1 DECIMAL NOT NULL, cpr2 DECIMAL NOT NULL, r1 DECIMAL NOT NULL, r2 DECIMAL NOT NULL, r3 DECIMAL NOT NULL, s1 DECIMAL NOT NULL, s2 DECIMAL NOT NULL, s3 DECIMAL NOT NULL, band_width DECIMAL NOT NULL,pre_high DECIMAL NOT NULL, pre_low DECIMAL NOT NULL)"
+                sql = f"CREATE TABLE IF NOT EXISTS {tb_name}(date DATE NOT NULL, time TIME NOT NULL, symbol VARCHAR(25) NOT NULL, cpr DECIMAL NOT NULL, cpr1 DECIMAL NOT NULL, cpr2 DECIMAL NOT NULL, r1 DECIMAL NOT NULL, r2 DECIMAL NOT NULL, r3 DECIMAL NOT NULL, s1 DECIMAL NOT NULL, s2 DECIMAL NOT NULL, s3 DECIMAL NOT NULL, band_width DECIMAL NOT NULL,pre_high DECIMAL NOT NULL, pre_low DECIMAL NOT NULL)"
                 cur.execute(sql)
                 self.connection.commit()
                 print(f'Table {tb_name}_piv created successfully')
@@ -139,7 +139,7 @@ class TableMaker(PGS):
             self.connect(db_key)
             
             cur = self.connection.cursor()
-            sql = f"CREATE TABLE IF NOT EXISTS selector(row_count SERIAL, date DATE NOT NULL, last_update_time TIME NOT NULL, insert_time TIME NOT NULL,symbol VARCHAR(25), ltp DECIMAL NOT NULL,pcng DECIMAL NOT NULL,type VARCHAR(10) NOT NULL,status VARCHAR(10))"
+            sql = f"CREATE TABLE IF NOT EXISTS selector(row_count SERIAL, date DATE NOT NULL, insert_time TIME NOT NULL,symbol VARCHAR(25), band_width DECIMAL NOT NULL)"
             cur.execute(sql)
             self.connection.commit()
             print('selector table created successfully')
@@ -155,14 +155,33 @@ class TableMaker(PGS):
                 print('All Okay')
 
 
+    def create_orders(self,db_key='opportunity'):
+        try:               
+            self.connect(db_key)
+            
+            cur = self.connection.cursor()
+            sql = f"CREATE TABLE IF NOT EXISTS orders(row_count SERIAL, date DATE NOT NULL, insert_time TIME NOT NULL, ad_strength DECIMAL NOT NULL, de_strength DECIMAL NOT NULL, type VARCHAR(10) NULL,status VARCHAR(10) DEFAULT 'ntg' NULL, occurance INTEGER DEFAULT 0 NULL)"
+            cur.execute(sql)
+            self.connection.commit()
+            print('orders table created successfully')
 
+        except (Exception, psycopg2.Error) as error :
+            print ("Error while connecting to PGSQL", error)
+
+        finally:
+            if self.connection:
+                cur.close()
+                self.connection.close()
+            else:
+                print('All Okay')
 
 if __name__ == "__main__":
     x = TableMaker()
     # x.create_tables(db_key='sample', tb_name='demo1')
     # x.create_proxy_ip_table()
-    # x.create_pivot_table()
-    x.create_selector()
+    x.create_pivot_table()
+    # x.create_selector()
+    # x.create_orders()
     
 
 

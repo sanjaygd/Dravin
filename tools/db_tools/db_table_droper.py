@@ -75,7 +75,7 @@ class TableDroper(PGS):
 
 if __name__ == "__main__":
     x = TableDroper()
-    # x.delete_table('sample',drop_all=True)
+    # x.delete_table('feed',drop_all=True)
 
 
 

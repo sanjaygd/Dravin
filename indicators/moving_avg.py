@@ -41,6 +41,7 @@ class MA(PGS):
                 cur.execute(sql2)
                 self.connection.commit()
             self.log_info('Moving averages are updated successfully')
+            self.log_info('****************************')
         except (Exception, psycopg2.Error) as error :
                 self.log_error(error)
                 print(error)

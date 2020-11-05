@@ -42,7 +42,7 @@ class LiveFeeder(PGS):
                 data_ini = Datafeed()
                 data_set = data_ini.get_feed()
                 if len(data_set) != 0:
-                    for ticker_dict in data_set:
+                    for ticker_dict in data_set[1:]:
                         for tb_name,data in ticker_dict.items():                        
                             sql = f'INSERT INTO {tb_name}(symbol,date,last_update_time,insert_time,open,high,low,preclose,ltp,cng,pcng,volume,value,request_count) values {data}'
                             cur.execute(sql)

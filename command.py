@@ -6,6 +6,7 @@ from db_feeder import  (
                         pg_writer,
                         sleep_60
                         )
+from speculator import selector
 from indicators import moving_avg,pivot_points
 from proxy_server import proxy
 
@@ -96,6 +97,13 @@ if __name__ == "__main__":
 10. -pv pivot requires only one argument
     1.y
     (-pv y)
+    """
+
+    parser.add_argument('-s', '--selector', type=str, metavar='', help='To decide long and short')
+    """
+11. -s selector requires only one argument
+    1.y
+    (-s y)
     """
 
     argument = parser.parse_args()
@@ -249,3 +257,17 @@ if __name__ == "__main__":
                 print('Argument not recognized')
         else:
             print('argument limit exceeded, required only one')
+
+
+# ----------------------- Selector---------------------
+
+    elif argument.selector:
+        args = argument.selector
+        if len(args) == 1:
+            if args[0] == 'y':
+                ini = selector.BandWidthLookUp()
+                ini.store_prefered_stocks()
+            else:
+                print('Argument not recognized')
+        else:
+            print('argument limit exceeded, required only one')   

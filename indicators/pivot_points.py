@@ -27,12 +27,12 @@ class PivotPoints(PGS):
 
     def pivots(self):
         try:
-            self.connect('feed')
+            self.connect('pivot')
             cur = self.connection.cursor()
             ini = Datafeed()
             data_set = ini.get_feed()
             if len(data_set) != 0:
-                for ticker_dict in data_set:
+                for ticker_dict in data_set[1:]:
                     for tb_name,data in ticker_dict.items():
                         symbol,_date,last_update_time,insert_time,_open,high,low,preclose,ltp,cng,pcng,volume,value,request_count = data
                         
@@ -62,8 +62,8 @@ class PivotPoints(PGS):
                         band_width= round((cpr1-cpr2)/cpr2*100,4)
                         date = datetime.now().date().strftime('%Y-%m-%d')
                         time = datetime.now().time().strftime('%H:%M:%S')
-                        data = (date,time,cpr,cpr1,cpr2,r1,r2,r3,s1,s2,s3,band_width,high,low)
-                        sql = f"INSERT INTO {tb_name}_piv (date,time,cpr,cpr1,cpr2,r1,r2,r3,s1,s2,s3,band_width,pre_high,pre_low) values {data}"
+                        data = (date,time,symbol,cpr,cpr1,cpr2,r1,r2,r3,s1,s2,s3,band_width,high,low)
+                        sql = f"INSERT INTO {tb_name} (date,time,symbol,cpr,cpr1,cpr2,r1,r2,r3,s1,s2,s3,band_width,pre_high,pre_low) values {data}"
                         cur.execute(sql)
                         self.connection.commit()
                 self.log_info("Pivot points entries has been completed for tody's date")
